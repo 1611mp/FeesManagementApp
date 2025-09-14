@@ -8,13 +8,25 @@ from reportlab.lib.pagesizes import A4
 from PySide6.QtWidgets import (
     QApplication, QWidget, QLabel, QLineEdit, QPushButton,
     QVBoxLayout, QHBoxLayout, QMessageBox, QTableWidget, QTableWidgetItem,
-    QHeaderView, QFileDialog
+    QHeaderView
 )
 from PySide6.QtCore import Qt
 
-# File names
-STUDENT_FILE = "students.xlsx"
-PAYMENTS_FILE = "payments.xlsx"
+# -------------------------------
+# Locate base directory (works for .py and .exe)
+# -------------------------------
+if getattr(sys, 'frozen', False):  # Running as .exe
+    BASE_DIR = os.path.dirname(sys.executable)
+else:  # Running as script
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Data folder
+DATA_DIR = os.path.join(BASE_DIR, "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# File names inside "data" folder
+STUDENT_FILE = os.path.join(DATA_DIR, "students.xlsx")
+PAYMENTS_FILE = os.path.join(DATA_DIR, "payments.xlsx")
 
 
 class MISFeesApp(QWidget):
@@ -214,9 +226,9 @@ class MISFeesApp(QWidget):
         filename = os.path.join(folder, f"{srn}_{name}_{timestamp}.pdf")
 
         c = canvas.Canvas(filename, pagesize=A4)
-        c.setFont("Helvetica-Bold", 16)
+        c.setFont("Helvetica-Bold", 14)
         c.drawString(50, 800, "SCHOOL NAME")
-        c.setFont("Helvetica", 14)
+        c.setFont("Helvetica", 12)
         c.drawString(50, 780, f"Receipt for: {student.get('Name', '')}    SRN: {srn}")
         c.drawString(50, 760, f"Class / Section: {student.get('Class', '')} / {student.get('Section', '')}")
         c.drawString(50, 740, f"Total Fees: {student.get('TotalFees', '')}")
@@ -228,7 +240,7 @@ class MISFeesApp(QWidget):
             y -= 18
             if y < 60:
                 c.showPage()
-                c.setFont("Helvetica", 14)
+                c.setFont("Helvetica", 12)
                 y = 800
 
         c.save()
